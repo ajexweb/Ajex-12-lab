@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12 Lab Ajex - टेक्स्ट-टू-स्पीच</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #history {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .history-item button, .history-item a {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            margin-left: 5px;
+            margin-top: 5px;
+            text-decoration: none;
+            color: white;
+            background-color: #28a745;
+            border-radius: 5px;
+        }
+
+        .history-item a:hover, .history-item button:hover {
+            background-color: #218838;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+            }
+
+            textarea, select, button, .history-item a {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>12 Lab Ajex - टेक्स्ट-टू-स्पीच</h1>
+        <textarea id="textInput" placeholder="यहाँ हिंदी में टेक्स्ट डालें (अधिकतम 10,000 शब्द)"></textarea>
+        <select id="voiceSelect">
+            <option value="-1">आवाज़ लोड हो रही है...</option>
+        </select>
+        <button onclick="generateSpeech()">MP3 के रूप में सहेजें</button>
+        <div id="history"></div>
+    </div>
+    <footer>
+        हमें इंस्टाग्राम पर फॉलो करें <a href="https://www.instagram.com/ajexweb" target="_blank">(@ajexweb)</a>
+    </footer>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const historyDiv = document.getElementById('history');
+        let voices = [];
+        let history = JSON.parse(localStorage.getItem('ttsHistory') || '[]').slice(-10); // Load last 10
+
+        // Hindi Voice types (simulated with pitch/rate adjustments)
+        const voiceTypes = [
+            { name: 'पुरुष हिंदी', pitch: 1.0, rate: 1.0, volume: 1.0, apiVoice: 'Aditi' },
+            { name: 'महिला हिंदी', pitch: 1.2, rate: 1.1, volume: 1.0, apiVoice: 'Aditi' },
+            { name: 'युवा हिंदी', pitch: 1.5, rate: 1.3, volume: 0.9, apiVoice: 'Aditi' },
+            { name: 'गंभीर हिंदी', pitch: 0.8, rate: 0.9, volume: 1.0, apiVoice: 'Aditi' },
+            { name: 'तेज़ हिंदी', pitch: 1.1, rate: 1.5, volume: 1.0, apiVoice: 'Aditi' }
+        ];
+
+        // Load voices
+        function loadVoices() {
+            voices = speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                populateVoiceDropdown();
+                clearTimeout(voiceLoadTimeout);
+            } else {
+                voiceSelect.innerHTML = '<option value="-1">आवाज़ लोड हो रही है...</option>';
+                setTimeout(loadVoices, 500);
+            }
+        }
+
+        function populateVoiceDropdown() {
+            voiceSelect.innerHTML = '<option value="-1">आवाज़ चुनें</option>';
+            if (voices.length === 0) {
+                voiceSelect.innerHTML = '<option value="-1">कोई आवाज़ उपलब्ध नहीं</option>';
+                alert('कोई TTS आवाज़ नहीं मिली। कृपया Chrome का उपयोग करें या Google Text-to-Speech स्थापित करें।');
+                return;
+            }
+
+            voiceTypes.forEach((type, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = type.name;
+                voiceSelect.appendChild(option);
+            });
+
+            console.log('Available voices:', voices.map(v => v.name));
+        }
+
+        speechSynthesis.onvoiceschanged = loadVoices;
+        let voiceLoadTimeout = setTimeout(() => {
+            if (voices.length === 0) {
+                voiceSelect.innerHTML = '<option value="-1">कोई आवाज़ उपलब्ध नहीं</option>';
+                alert('आवाज़ लोड करने में विफल। कृपया Chrome का उपयोग करें या Google Text-to-Speech स्थापित करें।');
+            }
+        }, 10000);
+        loadVoices();
+
+        document.addEventListener('click', () => {
+            if (voices.length === 0) {
+                loadVoices();
+            }
+        }, { once: true });
+
+        // Count words
+        function countWords(text) {
+            return text.trim().split(/\s+/).length;
+        }
+
+        // Generate speech with ttsMP3.com API via CORS proxy
+        async function generateSpeech() {
+            const text = textInput.value.trim();
+            const voiceIndex = parseInt(voiceSelect.value);
+
+            if (!text) {
+                alert('कृपया कुछ टेक्स्ट डालें!');
+                return;
+            }
+            if (countWords(text) > 10000) {
+                alert('इनपुट 10,000 शब्दों से अधिक है! कृपया टेक्स्ट कम करें।');
+                return;
+            }
+            if (voiceIndex === -1) {
+                alert('कृपया एक आवाज़ चुनें!');
+                return;
+            }
+
+            const voiceType = voiceTypes[voiceIndex];
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+            // Preview with Web Speech API (try Hindi voice)
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'hi-IN'; // Set language to Hindi
+            utterance.pitch = voiceType.pitch;
+            utterance.rate = voiceType.rate;
+            utterance.volume = voiceType.volume;
+
+            let selectedVoice = voices[0];
+            if (voices.length > 0) {
+                selectedVoice = voices.find(v => v.lang.includes('hi')) || voices[0];
+                utterance.voice = selectedVoice;
+            }
+
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+
+            // Generate MP3 with ttsMP3.com API via CORS proxy
+            try {
+                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                const apiUrl = 'https://ttsmp3.com/makemp3_new.php';
+                const response = await fetch(proxyUrl + apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `msg=${encodeURIComponent(text)}&lang=${encodeURIComponent(voiceType.apiVoice)}&source=ttsmp3`
+                });
+
+                // Log the raw response for debugging
+                const rawText = await response.text();
+                console.log('Raw response:', rawText);
+
+                // Try to parse as JSON
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (jsonError) {
+                    throw new Error('Invalid JSON response: ' + rawText);
+                }
+
+                if (data.Error !== 0) {
+                    throw new Error(data.Text);
+                }
+                const audioUrl = data.URL;
+
+                // Save to history
+                history.push({
+                    text: text.slice(0, 20) + '...',
+                    voice: voiceType.name,
+                    timestamp,
+                    pitch: voiceType.pitch,
+                    rate: voiceType.rate,
+                    volume: voiceType.volume,
+                    audioUrl
+                });
+
+                history = history.slice(-10);
+                localStorage.setItem('ttsHistory', JSON.stringify(history));
+                updateHistory();
+                alert(`MP3 ${voiceType.name} आवाज़ के साथ सहेजा गया! डाउनलोड के लिए तैयार।`);
+            } catch (error) {
+                alert('MP3 बनाने में विफल: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // Update history display
+        function updateHistory() {
+            historyDiv.innerHTML = '<h3>इतिहास</h3>';
+            if (history.length === 0) {
+                historyDiv.innerHTML += '<p>अभी तक कोई इतिहास नहीं।</p>';
+                return;
+            }
+            history.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    ${item.timestamp} - ${item.voice} - ${item.text}
+                    <button onclick="replaySpeech(${index})">दोबारा सुनें</button>
+                    ${item.audioUrl ? `<a href="${item.audioUrl}" download="tts_${item.voice}_${item.timestamp}.mp3">डाउनलोड</a>` : ''}
+                `;
+                historyDiv.appendChild(div);
+            });
+        }
+
+        // Replay speech
+        function replaySpeech(index) {
+            const item = history[index];
+            const utterance = new SpeechSynthesisUtterance(item.text);
+            utterance.lang = 'hi-IN'; // Set language to Hindi
+            utterance.pitch = item.pitch;
+            utterance.rate = item.rate;
+            utterance.volume = item.volume;
+
+            let selectedVoice = voices[0];
+            if (voices.length > 0) {
+                selectedVoice = voices.find(v => v.lang.includes('hi')) || voices[0];
+                utterance.voice = selectedVoice;
+            }
+
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+
+        // Initialize history
+        updateHistory();
+    </script>
+</body>
+</html>

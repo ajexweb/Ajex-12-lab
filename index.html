@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>12 Lab Ajex - टेक्स्ट-टू-स्पीच</title>
+    <title>12 Lab Ajex - Text-to-Speech</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
         body {
-            padding: 20px;
-            background-color: #f0f0f0;
+            padding: 40px 20px;
+            background-color: #0A0A23; /* Dark navy background */
+            color: #FFFFFF; /* White text */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -22,127 +23,164 @@
         }
 
         .container {
-            max-width: 100%;
+            max-width: 800px;
             width: 100%;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: #1A1A3D; /* Slightly lighter dark shade for container */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
-            font-size: 1.5em;
+            font-size: 2em;
             text-align: center;
-            margin-bottom: 20px;
-            color: #007bff;
+            margin-bottom: 30px;
+            color: #FFFFFF;
+            font-weight: 600;
         }
 
         textarea {
             width: 100%;
             height: 150px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 15px;
+            border: 1px solid #3A3A5A;
+            border-radius: 10px;
             resize: none;
             font-size: 1em;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            background-color: #2A2A4D;
+            color: #FFFFFF;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #6366F1; /* Indigo accent on focus */
         }
 
         select, button {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 10px;
             font-size: 1em;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            background-color: #2A2A4D;
+            color: #FFFFFF;
+            border: 1px solid #3A3A5A;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: #6366F1;
         }
 
         button {
-            background-color: #007bff;
-            color: white;
+            background: linear-gradient(90deg, #6366F1 0%, #A78BFA 100%); /* Gradient button */
+            color: #FFFFFF;
+            font-weight: 500;
             border: none;
-            transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background: linear-gradient(90deg, #7879F1 0%, #B39EFB 100%);
+            transform: scale(1.02);
         }
 
         #history {
-            margin-top: 20px;
+            margin-top: 30px;
             max-height: 200px;
             overflow-y: auto;
             width: 100%;
         }
 
         .history-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 15px;
+            border-bottom: 1px solid #3A3A5A;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            background-color: #2A2A4D;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            color: #D1D5DB;
         }
 
         .history-item button, .history-item a {
-            padding: 5px 10px;
+            padding: 8px 15px;
             font-size: 0.9em;
             margin-left: 5px;
             margin-top: 5px;
             text-decoration: none;
-            color: white;
-            background-color: #28a745;
-            border-radius: 5px;
+            color: #FFFFFF;
+            background: linear-gradient(90deg, #34D399 0%, #6EE7B7 100%); /* Green gradient for action buttons */
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
 
-        .history-item a:hover, .history-item button:hover {
-            background-color: #218838;
+        .history-item button:hover, .history-item a:hover {
+            background: linear-gradient(90deg, #4ADE80 0%, #86EFAC 100%);
         }
 
         footer {
-            margin-top: 20px;
+            margin-top: 30px;
             text-align: center;
             font-size: 0.9em;
-            color: #555;
+            color: #A1A1AA;
         }
 
         footer a {
-            color: #007bff;
+            color: #6366F1;
             text-decoration: none;
+            margin: 0 5px;
         }
 
         footer a:hover {
             text-decoration: underline;
+            color: #A78BFA;
         }
 
         @media (max-width: 600px) {
             .container {
-                padding: 15px;
+                padding: 20px;
             }
 
             h1 {
-                font-size: 1.2em;
+                font-size: 1.5em;
             }
 
-            textarea, select, button, .history-item a {
+            textarea, select, button, .history-item button, .history-item a {
                 font-size: 0.9em;
+            }
+
+            footer {
+                font-size: 0.8em;
             }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <h1>12 Lab Ajex - टेक्स्ट-टू-स्पीच</h1>
-        <textarea id="textInput" placeholder="यहाँ हिंदी में टेक्स्ट डालें (अधिकतम 10,000 शब्द)"></textarea>
+        <h1>12 Lab Ajex - Text-to-Speech</h1>
+        <textarea id="textInput" placeholder="Enter text here (max 10,000 words)"></textarea>
         <select id="voiceSelect">
-            <option value="-1">आवाज़ लोड हो रही है...</option>
+            <option value="-1">Loading voices...</option>
         </select>
-        <button onclick="generateSpeech()">MP3 के रूप में सहेजें</button>
+        <button onclick="generateSpeech()">Save as MP3</button>
         <div id="history"></div>
     </div>
     <footer>
-        हमें इंस्टाग्राम पर फॉलो करें <a href="https://www.instagram.com/ajexweb" target="_blank">(@ajexweb)</a>
+        Follow us on <a href="https://www.instagram.com/ajexweb" target="_blank">Instagram (@ajexweb)</a> | 
+        Web developed by <a href="https://ajexweb.github.io/Ajex-Web/" target="_blank">Ajex Web</a>
     </footer>
 
     <script>
@@ -154,11 +192,11 @@
 
         // Hindi Voice types (simulated with pitch/rate adjustments)
         const voiceTypes = [
-            { name: 'पुरुष हिंदी', pitch: 1.0, rate: 1.0, volume: 1.0, apiVoice: 'Aditi' },
-            { name: 'महिला हिंदी', pitch: 1.2, rate: 1.1, volume: 1.0, apiVoice: 'Aditi' },
-            { name: 'युवा हिंदी', pitch: 1.5, rate: 1.3, volume: 0.9, apiVoice: 'Aditi' },
-            { name: 'गंभीर हिंदी', pitch: 0.8, rate: 0.9, volume: 1.0, apiVoice: 'Aditi' },
-            { name: 'तेज़ हिंदी', pitch: 1.1, rate: 1.5, volume: 1.0, apiVoice: 'Aditi' }
+            { name: 'Male Hindi', pitch: 1.0, rate: 1.0, volume: 1.0, apiVoice: 'Aditi' },
+            { name: 'Female Hindi', pitch: 1.2, rate: 1.1, volume: 1.0, apiVoice: 'Aditi' },
+            { name: 'Young Hindi', pitch: 1.5, rate: 1.3, volume: 0.9, apiVoice: 'Aditi' },
+            { name: 'Deep Hindi', pitch: 0.8, rate: 0.9, volume: 1.0, apiVoice: 'Aditi' },
+            { name: 'Fast Hindi', pitch: 1.1, rate: 1.5, volume: 1.0, apiVoice: 'Aditi' }
         ];
 
         // Load voices
@@ -168,16 +206,16 @@
                 populateVoiceDropdown();
                 clearTimeout(voiceLoadTimeout);
             } else {
-                voiceSelect.innerHTML = '<option value="-1">आवाज़ लोड हो रही है...</option>';
+                voiceSelect.innerHTML = '<option value="-1">Loading voices...</option>';
                 setTimeout(loadVoices, 500);
             }
         }
 
         function populateVoiceDropdown() {
-            voiceSelect.innerHTML = '<option value="-1">आवाज़ चुनें</option>';
+            voiceSelect.innerHTML = '<option value="-1">Select Voice</option>';
             if (voices.length === 0) {
-                voiceSelect.innerHTML = '<option value="-1">कोई आवाज़ उपलब्ध नहीं</option>';
-                alert('कोई TTS आवाज़ नहीं मिली। कृपया Chrome का उपयोग करें या Google Text-to-Speech स्थापित करें।');
+                voiceSelect.innerHTML = '<option value="-1">No voices available</option>';
+                alert('No TTS voices found. Please use Chrome or install Google Text-to-Speech.');
                 return;
             }
 
@@ -194,8 +232,8 @@
         speechSynthesis.onvoiceschanged = loadVoices;
         let voiceLoadTimeout = setTimeout(() => {
             if (voices.length === 0) {
-                voiceSelect.innerHTML = '<option value="-1">कोई आवाज़ उपलब्ध नहीं</option>';
-                alert('आवाज़ लोड करने में विफल। कृपया Chrome का उपयोग करें या Google Text-to-Speech स्थापित करें।');
+                voiceSelect.innerHTML = '<option value="-1">No voices available</option>';
+                alert('Failed to load voices. Please use Chrome or install Google Text-to-Speech.');
             }
         }, 10000);
         loadVoices();
@@ -211,21 +249,21 @@
             return text.trim().split(/\s+/).length;
         }
 
-        // Generate speech with ttsMP3.com API via CORS proxy
+        // Generate speech with ttsMP3.com API via a new CORS proxy
         async function generateSpeech() {
             const text = textInput.value.trim();
             const voiceIndex = parseInt(voiceSelect.value);
 
             if (!text) {
-                alert('कृपया कुछ टेक्स्ट डालें!');
+                alert('Please enter some text!');
                 return;
             }
             if (countWords(text) > 10000) {
-                alert('इनपुट 10,000 शब्दों से अधिक है! कृपया टेक्स्ट कम करें।');
+                alert('Input exceeds 10,000 words! Please reduce the text.');
                 return;
             }
             if (voiceIndex === -1) {
-                alert('कृपया एक आवाज़ चुनें!');
+                alert('Please select a voice!');
                 return;
             }
 
@@ -248,14 +286,14 @@
             speechSynthesis.cancel();
             speechSynthesis.speak(utterance);
 
-            // Generate MP3 with ttsMP3.com API via CORS proxy
+            // Generate MP3 with ttsMP3.com API via new CORS proxy
             try {
-                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                const proxyUrl = 'https://thingproxy.freeboard.io/fetch/';
                 const apiUrl = 'https://ttsmp3.com/makemp3_new.php';
                 const response = await fetch(proxyUrl + apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `msg=${encodeURIComponent(text)}&lang=${encodeURIComponent(voiceType.apiVoice)}&source=ttsmp3`
+                    body: `msg=${encodeURIComponent(text)}&lang=${encodeURIComponent(voiceType.apiVoice)}&source=ttsmp3&pitch=${voiceType.pitch}&speed=${voiceType.rate}`
                 });
 
                 // Log the raw response for debugging
@@ -289,18 +327,18 @@
                 history = history.slice(-10);
                 localStorage.setItem('ttsHistory', JSON.stringify(history));
                 updateHistory();
-                alert(`MP3 ${voiceType.name} आवाज़ के साथ सहेजा गया! डाउनलोड के लिए तैयार।`);
+                alert(`MP3 saved with ${voiceType.name} voice! Ready to download.`);
             } catch (error) {
-                alert('MP3 बनाने में विफल: ' + error.message);
+                alert('Failed to generate MP3: ' + error.message);
                 console.error(error);
             }
         }
 
         // Update history display
         function updateHistory() {
-            historyDiv.innerHTML = '<h3>इतिहास</h3>';
+            historyDiv.innerHTML = '<h3>History</h3>';
             if (history.length === 0) {
-                historyDiv.innerHTML += '<p>अभी तक कोई इतिहास नहीं।</p>';
+                historyDiv.innerHTML += '<p>No history yet.</p>';
                 return;
             }
             history.forEach((item, index) => {
@@ -308,8 +346,8 @@
                 div.className = 'history-item';
                 div.innerHTML = `
                     ${item.timestamp} - ${item.voice} - ${item.text}
-                    <button onclick="replaySpeech(${index})">दोबारा सुनें</button>
-                    ${item.audioUrl ? `<a href="${item.audioUrl}" download="tts_${item.voice}_${item.timestamp}.mp3">डाउनलोड</a>` : ''}
+                    <button onclick="replaySpeech(${index})">Replay</button>
+                    ${item.audioUrl ? `<a href="${item.audioUrl}" download="tts_${item.voice}_${item.timestamp}.mp3">Download</a>` : ''}
                 `;
                 historyDiv.appendChild(div);
             });
